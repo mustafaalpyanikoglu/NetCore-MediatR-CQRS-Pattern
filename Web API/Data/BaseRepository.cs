@@ -1,46 +1,59 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Web_API.Data.Context;
+using System.Linq.Expressions;
 using Web_API.Models;
 
 namespace Web_API.Data
 {
-    public class BaseRepository<TEntity> where TEntity : class, IEntity, new()
+    public class BaseRepository<TEntity,TContext> 
+        where TEntity : class, IEntity, new()
+        where TContext : DbContext , new()
     {
-        private MediatorContext _mediatorContext;
-        private DbSet<TEntity> entities;
+        protected TContext Context { get; }
 
-        public BaseRepository(MediatorContext mediatorContext, DbSet<TEntity> entities)
+        public BaseRepository(TContext context)
         {
-            _mediatorContext = mediatorContext;
-            this.entities = entities;
+            Context = context;
         }
 
         public async Task<TEntity> AddAsync(TEntity entity)
         {
-            await entities.AddAsync(entity);
-            await _mediatorContext.SaveChangesAsync();
+            Context.Entry(entity).State = EntityState.Added;
+            await Context.SaveChangesAsync();
+            return entity;
+        }
+        public async Task<TEntity> Delete(TEntity entity)
+        {
+            Context.Entry(entity).State = EntityState.Deleted;
+            await Context.SaveChangesAsync();
             return entity;
         }
         public async Task<TEntity> Update(TEntity entity)
         {
-            entities.Update(entity);
-            await _mediatorContext.SaveChangesAsync();
+            Context.Entry(entity).State = EntityState.Modified;
+            await Context.SaveChangesAsync();
             return entity;
         }
-        public async Task<TEntity> Delete(int id)
+        public async Task<TEntity>? GetByAsync(Expression<Func<TEntity, bool>> filter)
         {
-            var currentEntity = entities.SingleOrDefault(m => m.Id == id);
-            entities.Remove(currentEntity);
-            await _mediatorContext.SaveChangesAsync();
-            return currentEntity;
+            using (Context)
+            {
+                return await Context.Set<TEntity>().SingleOrDefaultAsync(filter);
+            }
         }
-        public async Task<TEntity> GetByIdAsync(int id)
+        public async Task<List<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>> filter = null)
         {
-            return await entities.SingleOrDefaultAsync(m => m.Id == id);
+            using (Context)
+            {
+                return filter == null ? await Context.Set<TEntity>().ToListAsync() : await Context.Set<TEntity>().Where(filter).ToListAsync();
+            }
         }
-        public async Task<List<TEntity>> GetAllAsync()
+
+        public List<TEntity> GetAll(Expression<Func<TEntity, bool>> filter = null)
         {
-            return await entities.ToListAsync();
+            using (TContext context = new TContext())
+            {
+                return filter == null ? context.Set<TEntity>().ToList() : context.Set<TEntity>().Where(filter).ToList();
+            }
         }
     }
 }

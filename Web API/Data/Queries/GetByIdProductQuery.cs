@@ -7,9 +7,5 @@ namespace Web_API.Data.Queries
     {
         public int Id { get; set; }
 
-        public GetByIdProductQuery(int id)
-        {
-            Id = id;
-        }
     }
 }

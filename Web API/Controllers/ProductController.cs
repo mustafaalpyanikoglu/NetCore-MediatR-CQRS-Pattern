@@ -21,27 +21,25 @@ namespace Web_API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetProducts()
+        public async Task<IActionResult> GetListProduct()
         {
             GetListProductQuery query = new GetListProductQuery();
             List<Product> result = await _mediator.Send(query);
-            return result.Count != 0 ? (IActionResult)Ok(result) : BadRequest();
+            return result.Count != 0 ? Ok(result) : BadRequest();
         }
 
         [HttpGet]
-        [Route("{id}")]
-        public async Task<IActionResult> GetGame(int id)
+        [Route("{Id}")]
+        public async Task<IActionResult> GetByIdProduct([FromRoute] GetByIdProductQuery getByIdProductQuery)
         {
-            GetByIdProductQuery query = new GetByIdProductQuery(id);
-            Product result = await _mediator.Send(query);
-            return result != null ? (IActionResult)Ok(result) : BadRequest();
+            Product result = await _mediator.Send(getByIdProductQuery);
+            return result != null ? Ok(result) : BadRequest();
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddProduct([FromBody] Product product)
+        public async Task<IActionResult> AddProduct([FromBody] CreateProductCommand createProductCommand)
         {
-            CreateProductCommand query = new CreateProductCommand(product);
-            var result = await _mediator.Send(query);
+            var result = await _mediator.Send(createProductCommand);
             return result != null ? Ok(result) : BadRequest();
         }
     }

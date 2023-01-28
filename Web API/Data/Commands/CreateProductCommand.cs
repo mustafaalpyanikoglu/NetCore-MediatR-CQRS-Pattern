@@ -5,11 +5,8 @@ namespace Web_API.Data.Commands
 {
     public class CreateProductCommand:IRequest<Product>
     {
-        public Product Product { get; set; }
+        public string Name { get; set; }
+        public double Price { get; set; }
 
-        public CreateProductCommand(Product product)
-        {
-            this.Product = product;
-        }
     }
 }

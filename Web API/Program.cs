@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 using Web_API.Data;
 using Web_API.Data.Commands;
@@ -11,19 +12,12 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
-
 builder.Services.AddDbContext<MediatorContext>();
+
 builder.Services.AddMediatR(typeof(Program))
                 .AddAutoMapper(Assembly.GetExecutingAssembly());
-builder.Services.AddScoped<BaseRepository<Product>>()
-                .AddScoped<BaseRepository<Category>>();
-builder.Services.AddTransient<CreateCategoryHandler>();
-builder.Services.AddTransient<CreateProductHandler>();
-builder.Services.AddTransient<GetListCategoryHandler>();
-builder.Services.AddTransient<GetListProductHandler>();
-builder.Services.AddTransient<GetByIdProductHandler>();
-builder.Services.AddTransient<CreateProductCommand>();
-builder.Services.AddTransient<CreateCategoryCommand>();
+builder.Services.AddScoped<BaseRepository<Product, MediatorContext>>()
+                .AddScoped<BaseRepository<Category, MediatorContext>>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

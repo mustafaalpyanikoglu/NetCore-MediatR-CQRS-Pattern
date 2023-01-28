@@ -5,11 +5,8 @@ namespace Web_API.Data.Commands
 {
     public class CreateCategoryCommand:IRequest<Category>
     {
-        public Category Category { get; set; }
+        public string Name { get; set; }
 
-        public CreateCategoryCommand(Category category)
-        {
-            this.Category = category;
-        }
+
     }
 }

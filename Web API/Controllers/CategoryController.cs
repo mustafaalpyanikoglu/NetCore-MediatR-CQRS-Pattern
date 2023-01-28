@@ -30,10 +30,9 @@ namespace Web_API.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> AddCategory([FromBody] Category Category)
+        public async Task<IActionResult> AddCategory([FromBody] CreateCategoryCommand createCategoryCommand)
         {
-            CreateCategoryCommand query = new CreateCategoryCommand(Category);
-            var result = await _mediator.Send(query);
+            var result = await _mediator.Send(createCategoryCommand);
             return result != null ? Ok(result) : BadRequest();
         }
     }
